@@ -1,8 +1,10 @@
-To update https://hub.docker.com/r/nixos/nix/
+This image contains an installation of the [Nix package manager](https://nixos.org/nix/).
 
-    $ docker build . -t nixos/nix:2.0
-    $ docker tag nixos/nix:2.0 nixos/nix:latest
-    $ docker push nixos/nix:latest
-    $ docker push nixos/nix:2.0
+Use this build to create your own customized images as follows:
 
-Write access: @domenkozar
+    FROM nixos/nix
+
+    RUN nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+    RUN nix-channel --update
+
+    RUN nix-build -A pythonFull '<nixpkgs>'
