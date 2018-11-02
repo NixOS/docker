@@ -16,6 +16,7 @@ RUN wget https://nixos.org/releases/nix/nix-2.1.3/nix-2.1.3-x86_64-linux.tar.bz2
   && rm -r /nix-*-x86_64-linux* \
   && rm -rf /var/cache/apk/* \
   && /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old \
+  && /nix/var/nix/profiles/default/bin/nix-store --optimise \
   && /nix/var/nix/profiles/default/bin/nix-store --verify --check-contents
 
 ONBUILD ENV \
