@@ -3,7 +3,7 @@
 FROM alpine
 
 # Enable HTTPS support in wget.
-RUN apk add --update openssl
+RUN apk add --no-cache --update openssl
 
 # Download Nix and install it into the system.
 RUN wget https://nixos.org/releases/nix/nix-2.1.3/nix-2.1.3-x86_64-linux.tar.bz2 \
@@ -14,7 +14,7 @@ RUN wget https://nixos.org/releases/nix/nix-2.1.3/nix-2.1.3-x86_64-linux.tar.bz2
   && mkdir -m 0755 /nix && USER=root sh nix-*-x86_64-linux/install \
   && ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/ \
   && rm -r /nix-*-x86_64-linux* \
-  && rm -r /var/cache/apk/* \
+  && rm -rf /var/cache/apk/* \
   && /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old \
   && /nix/var/nix/profiles/default/bin/nix-store --verify --check-contents
 
