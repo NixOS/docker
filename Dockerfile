@@ -3,7 +3,7 @@
 FROM alpine
 
 # Enable HTTPS support in wget.
-RUN apk add --update openssl
+RUN apk add --update --no-cache openssl bash
 
 # Download Nix and install it into the system.
 RUN wget https://nixos.org/releases/nix/nix-2.1.3/nix-2.1.3-x86_64-linux.tar.bz2 \
@@ -13,8 +13,7 @@ RUN wget https://nixos.org/releases/nix/nix-2.1.3/nix-2.1.3-x86_64-linux.tar.bz2
   && for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done \
   && mkdir -m 0755 /nix && USER=root sh nix-*-x86_64-linux/install \
   && ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/ \
-  && rm -r /nix-*-x86_64-linux* \
-  && rm -r /var/cache/apk/*
+  && rm -r /nix-*-x86_64-linux*
 
 ONBUILD ENV \
     ENV=/etc/profile \
