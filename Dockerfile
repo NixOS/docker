@@ -2,8 +2,9 @@
 
 FROM alpine
 
-# Enable HTTPS support in wget.
-RUN apk add --no-cache --update openssl
+# Enable HTTPS support in wget and set nsswitch.conf to make resolution work within containers
+RUN apk add --no-cache --update openssl \
+  && echo hosts: dns files > /etc/nsswitch.conf
 
 # Download Nix and install it into the system.
 RUN wget https://nixos.org/releases/nix/nix-2.2.1/nix-2.2.1-x86_64-linux.tar.bz2 \
