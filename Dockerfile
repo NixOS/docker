@@ -8,7 +8,6 @@ RUN apk add --no-cache --update openssl \
 
 # Download Nix and install it into the system.
 RUN wget https://nixos.org/releases/nix/nix-2.3/nix-2.3-x86_64-linux.tar.xz \
-  && echo "e43f6947d1f302b6193302889e7800f3e3dd4a650b6f929c668c894884a02701  nix-2.3-x86_64-linux.tar.xz" | sha256sum -c \
   && tar xf nix-2.3-x86_64-linux.tar.xz \
   && addgroup -g 30000 -S nixbld \
   && for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done \
