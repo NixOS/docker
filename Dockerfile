@@ -6,10 +6,14 @@ FROM alpine
 RUN apk add --no-cache --update openssl \
   && echo hosts: dns files > /etc/nsswitch.conf
 
+ARG VERSION=2.3
+# This became the default with VERSION 2.3. Previously this was bz2
+ARG EXT=xz
+
 # Download Nix and install it into the system.
-RUN wget https://nixos.org/releases/nix/nix-2.2.1/nix-2.2.1-x86_64-linux.tar.bz2 \
-  && echo "e229e28f250cad684c278c9007b07a24eb4ead239280c237ed2245871eca79e0  nix-2.2.1-x86_64-linux.tar.bz2" | sha256sum -c \
-  && tar xjf nix-*-x86_64-linux.tar.bz2 \
+RUN wget https://nixos.org/releases/nix/nix-${VERSION}/nix-${VERSION}-x86_64-linux.tar.${EXT} \
+  && echo "$(wget -O- https://nixos.org/releases/nix/nix-${VERSION}/nix-${VERSION}-x86_64-linux.tar.${EXT}.sha256) " nix-*.tar.${EXT} | sha256sum -c \
+  && tar xf nix-*-x86_64-linux.tar.* \
   && addgroup -g 30000 -S nixbld \
   && for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done \
   && mkdir -m 0755 /etc/nix \
