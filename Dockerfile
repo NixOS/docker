@@ -12,14 +12,18 @@ RUN wget https://nixos.org/releases/nix/nix-2.3/nix-2.3-x86_64-linux.tar.xz \
   && addgroup -g 30000 -S nixbld \
   && for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done \
   && mkdir -m 0755 /etc/nix \
-  && echo 'sandbox = false' > /etc/nix/nix.conf \
+  && echo -e 'sandbox = false\nkeep-derivations = false' > /etc/nix/nix.conf \
   && mkdir -m 0755 /nix && USER=root sh nix-*-x86_64-linux/install \
   && ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/ \
   && rm -r /nix-*-x86_64-linux* \
   && rm -rf /var/cache/apk/* \
-  && /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old \
-  && /nix/var/nix/profiles/default/bin/nix-store --optimise \
-  && /nix/var/nix/profiles/default/bin/nix-store --verify --check-contents
+  && export \
+    PATH=/nix/var/nix/profiles/default/bin \
+  # Make sure the channel is gcrooted, because otherwise it wouldn't be kept with keep-derivations turned off
+  && nix-channel --update \
+  && nix-collect-garbage --delete-old \
+  && nix-store --optimise \
+  && nix-store --verify --check-contents
 
 ONBUILD ENV \
     ENV=/etc/profile \
