@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    paths-ignore:
+    - '**.md'
+
+jobs:
+  nix-build:
+    runs-on: ubuntu-latest
+    env:
+      NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-20.09.tar.gz"
+    steps:
+    - uses: cachix/install-nix-action@v12
+    - uses: actions/checkout@v1
+    - name: Check format
+      run: nix-build --no-out-link ./.
