@@ -1,0 +1,16 @@
+{
+    "systems": [
+        "x86_64-linux",
+        "aarch64-linux"
+    ],
+    "channels": {
+        "nixpkgs-unstable": {
+            "name": "nixpkgs",
+            "url": "https://nixos.org/channels/nixpkgs-unstable"
+        },
+        "nixos-20.09": {
+            "name": "nixos",
+            "url": "https://nixos.org/channels/nixos-20.09"
+        }
+    }
+}
