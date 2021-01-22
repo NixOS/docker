@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+from concurrent import futures
+import subprocess
+import os.path
+import json
+import os
+
+
+def gen_cmds(systems, channels):
+    for system in systems:
+        for name, channel in channels.items():
+            yield "env NIX_PATH=nixpkgs={url} nix-build --no-out-link --argstr name {docker_repo} --argstr tag {tag} --argstr channelName {channel_name} --argstr channelURL {channel_url} --argstr crossSystem {system} /build/default.nix".format(
+                channel_name=channel["name"],
+                channel_url=channel["url"],
+                docker_repo=docker_repo,
+                tag=name + "-" + system,
+                system=system,
+                url=channel["url"]+"/nixexprs.tar.xz",
+            )
+
+
+def run(buildcmd: str):
+    cmd = [
+        "docker",
+        "run",
+        "-i",
+        "--privileged",
+        "-v", "{}:/build".format(os.path.abspath("..")),
+        "-v", "/var/run/docker.sock:/var/run/docker.sock",
+        "nix-bootstrap",
+    ] + [
+        "nix-shell", "-p", "docker", "--run", "docker load < `{}`".format(buildcmd)
+    ]
+
+    subprocess.run(cmd, check=True)
+
+
+if __name__ == "__main__":
+    docker_repo = os.environ["DOCKER_REPO"]
+
+    matrix_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "matrix.json")
+    with open(matrix_path) as f:
+        data = json.load(f)
+
+    subprocess.run("docker build -f bootstrap/Dockerfile -t nix-bootstrap:latest bootstrap", check=True, shell=True)
+
+    with futures.ThreadPoolExecutor() as e:
+        for future in futures.as_completed(e.submit(run, cmd) for cmd in gen_cmds(data["systems"], data["channels"])):
+            future.result()

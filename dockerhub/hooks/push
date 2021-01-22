@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+from concurrent import futures
+import subprocess
+import os.path
+import json
+import os
+
+
+def gen_cmds(systems, channels):
+
+    for name, channel in channels.items():
+        images = []
+        for system in systems:
+            tag = name + "-" + system
+            image = ":".join((docker_repo, tag))
+            images.append(image)
+            yield ["docker", "push", image]
+
+        manifest_tag = "-".join((name, "latest"))
+        tag = ":".join((docker_repo, manifest_tag))
+        create_cmd = ["docker", "manifest", "create", tag]
+        for img in images:
+            create_cmd = create_cmd + [
+                "--amend", img
+            ]
+        yield create_cmd
+        yield ["docker", "manifest", "push", tag]
+
+        if name == "nixpkgs-unstable":
+            manifest_tag = "latest"
+            tag = ":".join((docker_repo, manifest_tag))
+            create_cmd = ["docker", "manifest", "create", tag]
+            for img in images:
+                create_cmd = create_cmd + [
+                    "--amend", img
+                ]
+            yield create_cmd
+            yield ["docker", "manifest", "push", tag]
+
+
+if __name__ == "__main__":
+    # For docker manifest create/push
+    os.environ["DOCKER_CLI_EXPERIMENTAL"] = "enabled"
+
+    docker_repo = os.environ["DOCKER_REPO"]
+
+    matrix_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "matrix.json")
+    with open(matrix_path) as f:
+        data = json.load(f)
+
+    for cmd in gen_cmds(data["systems"], data["channels"]):
+        print(cmd)
+        subprocess.run(cmd, check=True)
