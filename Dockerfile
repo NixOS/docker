@@ -7,7 +7,7 @@ RUN apk add --no-cache --update openssl \
   && echo hosts: files dns > /etc/nsswitch.conf
 
 # Download Nix and install it into the system.
-ARG NIX_VERSION=2.3.12
+ARG NIX_VERSION=2.3.14
 RUN wget https://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz \
   && tar xf nix-${NIX_VERSION}-$(uname -m)-linux.tar.xz \
   && addgroup -g 30000 -S nixbld \
