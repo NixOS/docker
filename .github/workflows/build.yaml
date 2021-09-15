@@ -30,5 +30,6 @@ jobs:
         with:
           build-args: |
             NIX_VERSION=${{ env.NIX_VERSION }}
+          platforms: linux/amd64,linux/arm64
           push: ${{ startsWith(github.ref, 'refs/heads/master') }}
           tags: nixos/nix:${{ env.NIX_VERSION }},nixos/nix:latest
