@@ -4,6 +4,7 @@ FROM alpine
 
 # Enable HTTPS support in wget and set nsswitch.conf to make resolution work within containers
 RUN apk add --no-cache --update openssl git \
+  && rm -rf /var/cache/apk/* \
   && echo hosts: files dns > /etc/nsswitch.conf
 
 # Download Nix and install it into the system.
@@ -14,10 +15,10 @@ RUN wget https://nixos.org/releases/nix/nix-${NIX_VERSION}/nix-${NIX_VERSION}-$(
   && for i in $(seq 1 30); do adduser -S -D -h /var/empty -g "Nix build user $i" -u $((30000 + i)) -G nixbld nixbld$i ; done \
   && mkdir -m 0755 /etc/nix \
   && printf 'filter-syscalls = false\nsandbox = false\n' > /etc/nix/nix.conf \
-  && mkdir -m 0755 /nix && USER=root sh nix-${NIX_VERSION}-$(uname -m)-linux/install \
+  && mkdir -m 0755 /nix \
+  && sh nix-${NIX_VERSION}-$(uname -m)-linux/install \
   && ln -s /nix/var/nix/profiles/default/etc/profile.d/nix.sh /etc/profile.d/ \
   && rm -r /nix-${NIX_VERSION}-$(uname -m)-linux* \
-  && rm -rf /var/cache/apk/* \
   && /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old \
   && /nix/var/nix/profiles/default/bin/nix-store --optimise \
   && /nix/var/nix/profiles/default/bin/nix-store --verify --check-contents
