@@ -1,6 +1,9 @@
 This image contains an installation of the [Nix package manager](https://nixos.org/nix/).
 
+The image must be built with [buildkit].
 Use this build to create your own customized images as follows:
+
+[buildkit]: https://docs.docker.com/go/buildkit/
 
 ```Dockerfile
 FROM nixos/nix
