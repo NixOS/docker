@@ -3,7 +3,7 @@
 FROM alpine
 
 # Enable HTTPS support in wget and set nsswitch.conf to make resolution work within containers
-RUN apk add --no-cache --update openssl \
+RUN apk add --no-cache --update openssl git \
   && echo hosts: files dns > /etc/nsswitch.conf
 
 # Download Nix and install it into the system.
